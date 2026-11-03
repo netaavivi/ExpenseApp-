@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Expense Policy Checker</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 40px 24px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #1f2937;
+    background: #f7f8fa;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 22px; font-weight: 600; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .subtitle { color: #6b7280; margin: 0 0 24px; }
+
+  .card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+    overflow: hidden;
+  }
+  #count {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 12px 16px;
+    margin: 0 0 16px;
+    font-weight: 600;
+    font-size: 13px;
+    color: #6b7280;
+  }
+  #count::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #b91c1c;
+    align-self: center;
+  }
+
+  table { width: 100%; border-collapse: separate; border-spacing: 0; overflow: hidden; }
+  th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #f0f1f3; }
+  th {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #6b7280;
+    background: #fafafb;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td { color: #374151; }
+  td:nth-child(4) { font-variant-numeric: tabular-nums; font-weight: 500; }
+  tr.violation td { background: #fef2f2; }
+  tr.violation td:first-child { box-shadow: inset 3px 0 0 #dc2626; }
+
+  .violation-text,
+  .ok-text {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .violation-text { background: #fee2e2; color: #991b1b; }
+  .ok-text { background: #dcfce7; color: #166534; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Expense Policy Checker</h1>
+<p class="subtitle">Policy: Meals up to $50, Hotels up to $250.</p>
+
+<p id="count" class="card"></p>
+
+<div class="card">
+<table>
+  <thead>
+    <tr><th>Date</th><th>Description</th><th>Type</th><th>Amount</th><th>Status</th></tr>
+  </thead>
+  <tbody id="rows"></tbody>
+</table>
+</div>
+</div>
+
+<script>
+  const limits = { Meal: 50, Hotel: 250 };
+
+  const expenses = [
+    { date: "2026-10-02", description: "Client dinner", type: "Meal", amount: 68.4 },
+    { date: "2026-10-05", description: "Hotel - Chicago", type: "Hotel", amount: 212 },
+    { date: "2026-10-07", description: "Team lunch", type: "Meal", amount: 42.15 },
+    { date: "2026-10-12", description: "Hotel - New York", type: "Hotel", amount: 289.99 },
+    { date: "2026-10-13", description: "Airport breakfast", type: "Meal", amount: 50 }
+  ];
+
+  const rows = document.getElementById("rows");
+  let violations = 0;
+
+  expenses.forEach(e => {
+    const over = e.amount > limits[e.type];
+    if (over) violations++;
+
+    const tr = document.createElement("tr");
+    if (over) tr.className = "violation";
+
+    const status = over
+      ? `<span class="violation-text">Over by $${(e.amount - limits[e.type]).toFixed(2)}</span>`
+      : `<span class="ok-text">OK</span>`;
+
+    tr.innerHTML = `
+      <td>${e.date}</td>
+      <td>${e.description}</td>
+      <td>${e.type}</td>
+      <td>$${e.amount.toFixed(2)}</td>
+      <td>${status}</td>`;
+    rows.appendChild(tr);
+  });
+
+  document.getElementById("count").textContent =
+    `Violations: ${violations} of ${expenses.length}`;
+</script>
+</body>
+</html>
